@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANITS Smart Lost & Found Campus Portal</title>
+<link rel="icon" href="assets/anits-logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" onclick="showPage('home');return false;">
+    <img src="assets/anits-logo.png" alt="ANITS">
+    <div><strong>ANITS</strong><span>Smart Lost & Found</span></div>
+  </a>
+  <nav>
+    <button class="nav-btn active" data-page="home">Home</button>
+    <button class="nav-btn" data-page="items">Lost & Found</button>
+    <button class="nav-btn" data-page="admin">Admin</button>
+  </nav>
+</header>
+
+<main>
+<section id="home" class="page active-page">
+  <div class="hero">
+    <div>
+      <span class="eyebrow">ANITS CAMPUS • SMART SERVICE</span>
+      <h1>Find it. Report it.<br><em>Return it.</em></h1>
+      <p>A campus-wide place to report lost and found belongings, search verified listings and help items reach their rightful owners.</p>
+      <div class="hero-actions">
+        <button class="btn primary" onclick="showPage('items')">Browse Items</button>
+        <button class="btn ghost" onclick="openReportChoice()">Report an Item</button>
+      </div>
+    </div>
+    <div class="hero-orbit"><span>ANITS</span><small>Campus<br>Connected</small></div>
+  </div>
+
+  <div class="role-grid">
+    <article class="role-card">
+      <div class="role-icon">🛡️</div>
+      <small class="role-label">MANAGEMENT</small>
+      <h2>Admin</h2>
+      <p>Review reports, approve genuine listings, reject inappropriate submissions and manage claim requests.</p>
+      <button class="btn dark" onclick="showPage('admin');document.getElementById('adminId')?.focus();">Admin Dashboard</button>
+    </article>
+    <article class="role-card featured">
+      <div class="role-icon">🎓</div>
+      <small class="role-label">STUDENT / STAFF</small>
+      <h2>General Profile</h2>
+      <p>Report a lost or found item and search campus listings without exposing your private contact information.</p>
+      <button class="btn primary" onclick="openReportChoice()">Enter Portal</button>
+    </article>
+  </div>
+
+  <div class="steps">
+    <div><b>01</b><span>Report Lost / Found</span></div>
+    <div><b>02</b><span>Admin Verification</span></div>
+    <div><b>03</b><span>Public Item Card</span></div>
+    <div><b>04</b><span>Claim & Return</span></div>
+  </div>
+</section>
+
+<section id="items" class="page">
+  <div class="section-head">
+    <div><span class="eyebrow">CAMPUS LISTINGS</span><h2>Lost & Found Items</h2><p>Only admin-approved reports appear publicly.</p></div>
+    <button class="btn primary" onclick="openReportChoice()">+ Report Item</button>
+  </div>
+  <div class="filterbar">
+    <input id="search" placeholder="Search item, location or description..." oninput="renderPublicItems()">
+    <select id="typeFilter" onchange="renderPublicItems()"><option value="All">All Types</option><option>Lost</option><option>Found</option></select>
+    <select id="catFilter" onchange="renderPublicItems()"><option value="All">All Categories</option><option>Documents</option><option>Electronics</option><option>Accessories</option><option>Books</option><option>Keys</option><option>Other</option></select>
+    <button class="btn soft" onclick="loadFromSheet()">↻ Refresh</button>
+  </div>
+  <div id="publicGrid" class="card-grid"></div>
+</section>
+
+<section id="admin" class="page">
+  <div id="adminLoginView" class="admin-login">
+    <div class="login-card">
+      <div class="role-icon">🛡️</div><span class="eyebrow">SECURE ACCESS</span>
+      <h2>ANITS Admin</h2>
+      <p>Demo login for this project. Replace the credentials with college-approved authentication before real deployment.</p>
+      <input id="adminId" placeholder="Admin ID">
+      <input id="adminPass" type="password" placeholder="Password">
+      <button class="btn primary full" onclick="adminLogin()">Login</button>
+      <small id="loginError" class="error"></small>
+      <div class="demo-hint">Demo: <b>admin</b> / <b>anits123</b></div>
+    </div>
+  </div>
+
+  <div id="dashboardView" class="hidden">
+    <div class="section-head">
+      <div><span class="eyebrow">ADMIN CONTROL CENTER</span><h2>Dashboard</h2><p>Approve reports before they become visible to students.</p></div>
+      <button class="btn soft" onclick="adminLogout()">Logout</button>
+    </div>
+    <div class="stats">
+      <div><span>Total</span><b id="statTotal">0</b></div>
+      <div><span>Pending</span><b id="statPending">0</b></div>
+      <div><span>Lost</span><b id="statLost">0</b></div>
+      <div><span>Found</span><b id="statFound">0</b></div>
+      <div><span>Claims</span><b id="statClaims">0</b></div>
+    </div>
+    <div class="admin-tabs">
+      <button class="tab active" onclick="setAdminTab('reports',this)">Reports</button>
+      <button class="tab" onclick="setAdminTab('claims',this)">Claim Requests</button>
+    </div>
+    <div id="reportsPanel" class="admin-panel"></div>
+    <div id="claimsPanel" class="admin-panel hidden"></div>
+  </div>
+</section>
+</main>
+
+<div id="reportChoice" class="modal">
+  <div class="modal-box choice-box">
+    <button class="x" onclick="closeModal('reportChoice')">×</button>
+    <span class="eyebrow">GENERAL PROFILE</span><h2>What would you like to report?</h2>
+    <div class="choice-grid">
+      <button onclick="openReportForm('Lost')"><span>🔴</span><b>I Lost Something</b><small>Tell campus what you are looking for.</small></button>
+      <button onclick="openReportForm('Found')"><span>🟢</span><b>I Found Something</b><small>Help return an item to its owner.</small></button>
+    </div>
+  </div>
+</div>
+
+<div id="reportModal" class="modal">
+  <div class="modal-box">
+    <button class="x" onclick="closeModal('reportModal')">×</button>
+    <span class="eyebrow" id="reportEyebrow">ITEM REPORT</span><h2 id="reportTitle">Report Item</h2>
+    <form id="reportForm">
+      <input type="hidden" id="reportType">
+      <div class="form-grid">
+        <label>Item Name<input id="itemName" required placeholder="e.g. Black Wallet"></label>
+        <label>Category<select id="category" required><option value="">Select</option><option>Documents</option><option>Electronics</option><option>Accessories</option><option>Books</option><option>Keys</option><option>Other</option></select></label>
+        <label>Location<input id="location" required placeholder="e.g. Library Entrance"></label>
+        <label>Date<input id="itemDate" type="date" required></label>
+        <label class="full">Description<textarea id="description" required placeholder="Useful identifying details..."></textarea></label>
+        <label>Your Name<input id="reporterName" required></label>
+        <label>College Email<input id="reporterEmail" type="email" required placeholder="example@anits.edu.in"></label>
+        <label class="full">Item Image <span class="muted">(optional, max 2 MB)</span><input id="itemImage" type="file" accept="image/*"></label>
+      </div>
+      <div class="privacy">🔒 Your name and email are stored for admin use and are <b>not displayed</b> on public cards.</div>
+      <button class="btn primary full" type="submit">Submit Report</button>
+    </form>
+  </div>
+</div>
+
+<div id="claimModal" class="modal">
+  <div class="modal-box small">
+    <button class="x" onclick="closeModal('claimModal')">×</button>
+    <span class="eyebrow">ITEM CLAIM</span><h2>Claim this item</h2>
+    <p id="claimItemText"></p>
+    <form id="claimForm">
+      <input type="hidden" id="claimItemId">
+      <label>Your Name<input id="claimName" required></label>
+      <label>College Email<input id="claimEmail" type="email" required></label>
+      <label>Why do you believe this is yours?<textarea id="claimReason" required></textarea></label>
+      <button class="btn primary full" type="submit">Send Claim Request</button>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<footer>© 2026 ANITS • Smart Lost & Found Campus Portal</footer>
+<script src="app.js"></script>
+</body>
+</html>
